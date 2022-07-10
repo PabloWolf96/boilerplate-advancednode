@@ -37,8 +37,9 @@ myDB(async (client) => {
     done(null, user._id);
   });
   passport.deserializeUser(async (id, done) => {
-    const user = await myDatabase.findOne({ _id: new ObjectID(id) });
-    done(null, user);
+    myDatabase.findOne({ _id: new ObjectID(id) }, (err, doc) => {
+      done(null, doc);
+    });
   });
 }).catch((err) => {
   app.route("/").get((req, res) => {
