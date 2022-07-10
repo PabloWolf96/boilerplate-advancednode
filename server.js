@@ -7,6 +7,7 @@ const fccTesting = require("./freeCodeCamp/fcctesting.js");
 const app = express();
 const session = require("express-session");
 const passport = require("passport");
+const ObjectId = require("mongodb").ObjectId;
 require("./services/passport");
 fccTesting(app); //For FCC testing purposes
 app.use("/public", express.static(process.cwd() + "/public"));
@@ -24,6 +25,13 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
+passport.serializeUser((user, done) => {
+  done(null, user._id);
+});
+
+passport.deserializeUser((id, done) => {
+  done(null, null);
+});
 
 app.route("/").get((req, res) => {
   res.render("index", {
