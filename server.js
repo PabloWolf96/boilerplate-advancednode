@@ -32,8 +32,26 @@ myDB(async (client) => {
     res.render("index", {
       title: "Connected to Database",
       message: "Please login",
+      showLogin: true,
     });
   });
+  passport.use(
+    new LocalStrategy((username, password, done) => {
+      myDatabase.findOne({ username: username }, (err, user) => {
+        console.log("User " + username + " attempted to login");
+        if (err) {
+          return done(err);
+        }
+        if (!user) {
+          return done(null, false);
+        }
+        if (user.password !== password) {
+          return done(null, false);
+        }
+        return done(null, user);
+      });
+    })
+  );
   passport.serializeUser((user, done) => {
     done(null, user._id);
   });
@@ -41,29 +59,24 @@ myDB(async (client) => {
     myDatabase.findOne({ _id: new ObjectID(id) }, (err, doc) => {
       done(null, doc);
     });
-    passport.use(
-      new LocalStrategy((username, password, done) => {
-        myDatabase.findOne({ username: username }, (err, user) => {
-          console.log("User " + username + " attempted to login");
-          if (err) {
-            return done(err);
-          }
-          if (!user) {
-            return done(null, false);
-          }
-          if (user.password !== password) {
-            return done(null, false);
-          }
-          return done(null, user);
-        });
-      })
-    );
   });
 }).catch((err) => {
   app.route("/").get((req, res) => {
-    res.render("index", { title: e, message: "Unable to login" });
+    res.render("index", {
+      title: e,
+      message: "Unable to login",
+    });
   });
 });
+app.post(
+  "/login",
+  passport.authenticate("local", {
+    failureRedirect: "/",
+  }),
+  (req, res) => {
+    res.redirect("/profile");
+  }
+);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
