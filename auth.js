@@ -1,4 +1,5 @@
 const LocalStrategy = require("passport-local").Strategy;
+const GithubStrategy = require("passport-github").Strategy;
 const bcrypt = require("bcrypt");
 const passport = require("passport");
 const ObjectID = require("mongodb").ObjectId;
@@ -27,5 +28,17 @@ module.exports = (app, myDatabase) => {
         return done(null, user);
       });
     })
+  );
+  passport.use(
+    new GithubStrategy(
+      {
+        clientID: process.env.GITHUB_CLIENT_ID,
+        clientSecret: process.env.GITHUB_CLIENT_SECRET,
+        callbackURL: process.env.GITHUB_CALLBACK_URL,
+      },
+      (accessToken, refreshToken, profile, cb) => {
+        console.log(profile);
+      }
+    )
   );
 };
