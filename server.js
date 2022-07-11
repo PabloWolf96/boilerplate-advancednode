@@ -56,9 +56,29 @@ myDB(async (client) => {
       username: req.user.username,
     });
   });
-  app.get("/logout", (req, res) => {
+  app.get("/logout", (req, res, next) => {
     req.logout();
     res.redirect("/");
+  });
+  app.post("/register", (req, res) => {
+    myDatabase.findOne({ username: req.body.username }, (err, data) => {
+      if (err) {
+        next(err);
+      } else if (data) {
+        res.redirect("/");
+      } else {
+        myDatabase.insertOne(
+          { username: req.body.username, password: req.body.password },
+          (err, doc) => {
+            if (err) {
+              res.redirect("/");
+            } else {
+              next(null, doc.ops[0]);
+            }
+          }
+        );
+      }
+    });
   });
 
   app.use((req, res, next) => {
