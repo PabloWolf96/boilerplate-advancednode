@@ -84,7 +84,9 @@ function ensureAuthenticated(req, res, next) {
   res.redirect("/");
 }
 app.get("/profile", ensureAuthenticated, (req, res) => {
-  res.render("profile");
+  res.render("profile", {
+    username: req.user.username,
+  });
 });
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
