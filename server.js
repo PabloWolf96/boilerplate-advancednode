@@ -3,6 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const myDB = require("./connection");
 const fccTesting = require("./freeCodeCamp/fcctesting.js");
+const bcrypt = requir("bcrypt");
 
 const app = express();
 const session = require("express-session");
@@ -61,6 +62,7 @@ myDB(async (client) => {
     res.redirect("/");
   });
   app.route("/register").post((req, res, next) => {
+    const password = bcrypt.hashSync(req.body.password, 10);
     myDatabase.findOne({ username: req.body.username }, (err, data) => {
       if (err) {
         next(err);
@@ -68,7 +70,7 @@ myDB(async (client) => {
         res.redirect("/");
       } else {
         myDatabase.insertOne(
-          { username: req.body.username, password: req.body.password },
+          { username: req.body.username, password },
           (err, doc) => {
             if (err) {
               res.redirect("/");
@@ -95,7 +97,7 @@ myDB(async (client) => {
         if (!user) {
           return done(null, false);
         }
-        if (user.password !== password) {
+        if (!bcrypt.compareSync(password, user.password)) {
           return done(null, false);
         }
         return done(null, user);
