@@ -28,13 +28,7 @@ app.use(passport.session());
 
 myDB(async (client) => {
   const myDatabase = await client.db("database").collection("users");
-  app.route("/").get((req, res) => {
-    res.render("index", {
-      title: "Connected to Database",
-      message: "Please login",
-      showLogin: true,
-    });
-  });
+
   passport.use(
     new LocalStrategy((username, password, done) => {
       myDatabase.findOne({ username: username }, (err, user) => {
@@ -68,6 +62,13 @@ myDB(async (client) => {
     });
   });
 });
+app.route("/").get((req, res) => {
+  res.render("index", {
+    title: "Connected to Database",
+    message: "Please login",
+    showLogin: true,
+  });
+});
 app.post(
   "/login",
   passport.authenticate("local", {
@@ -92,9 +93,11 @@ app.get("/logout", (req, res) => {
   req.logout();
   res.redirect("/");
 });
+
 app.use((req, res, next) => {
   res.status(404).type("text").send("Not Found");
 });
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log("Listening on port " + PORT);
