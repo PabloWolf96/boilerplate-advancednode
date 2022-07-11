@@ -3,7 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const myDB = require("./connection");
 const fccTesting = require("./freeCodeCamp/fcctesting.js");
-const bcrypt = requir("bcrypt");
+const bcrypt = require("bcrypt");
 
 const app = express();
 const session = require("express-session");
