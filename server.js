@@ -28,6 +28,42 @@ app.use(passport.session());
 
 myDB(async (client) => {
   const myDatabase = await client.db("database").collection("users");
+  app.route("/").get((req, res) => {
+    res.render("index", {
+      title: "Connected to Database",
+      message: "Please login",
+      showLogin: true,
+      showRegistration: true,
+    });
+  });
+  app.post(
+    "/login",
+    passport.authenticate("local", {
+      failureRedirect: "/",
+    }),
+    (req, res) => {
+      res.redirect("/profile");
+    }
+  );
+  function ensureAuthenticated(req, res, next) {
+    if (req.isAuthenticated()) {
+      return next();
+    }
+    res.redirect("/");
+  }
+  app.get("/profile", ensureAuthenticated, (req, res) => {
+    res.render("profile", {
+      username: req.user.username,
+    });
+  });
+  app.get("/logout", (req, res) => {
+    req.logout();
+    res.redirect("/");
+  });
+
+  app.use((req, res, next) => {
+    res.status(404).type("text").send("Not Found");
+  });
 
   passport.use(
     new LocalStrategy((username, password, done) => {
@@ -61,41 +97,6 @@ myDB(async (client) => {
       message: "Unable to login",
     });
   });
-});
-app.route("/").get((req, res) => {
-  res.render("index", {
-    title: "Connected to Database",
-    message: "Please login",
-    showLogin: true,
-  });
-});
-app.post(
-  "/login",
-  passport.authenticate("local", {
-    failureRedirect: "/",
-  }),
-  (req, res) => {
-    res.redirect("/profile");
-  }
-);
-function ensureAuthenticated(req, res, next) {
-  if (req.isAuthenticated()) {
-    return next();
-  }
-  res.redirect("/");
-}
-app.get("/profile", ensureAuthenticated, (req, res) => {
-  res.render("profile", {
-    username: req.user.username,
-  });
-});
-app.get("/logout", (req, res) => {
-  req.logout();
-  res.redirect("/");
-});
-
-app.use((req, res, next) => {
-  res.status(404).type("text").send("Not Found");
 });
 
 const PORT = process.env.PORT || 3000;
