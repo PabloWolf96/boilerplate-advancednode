@@ -7,6 +7,7 @@ module.exports = (app, myDatabase) => {
       message: "Please login",
       showLogin: true,
       showRegistration: true,
+      showSocialAuth: true,
     });
   });
   app.post(
@@ -54,6 +55,21 @@ module.exports = (app, myDatabase) => {
       }
     });
   });
+  app.get(
+    "/auth/github",
+    passport.authenticate("github", {
+      failureRedirect: "/",
+    })
+  );
+  app.get(
+    "/auth/github/callback",
+    passport.authenticate("github", {
+      failureRedirect: "/",
+    }),
+    (req, res) => {
+      res.redirect("/profile");
+    }
+  );
   app.use((req, res, next) => {
     res.status(404).type("text").send("Not Found");
   });
