@@ -60,7 +60,7 @@ myDB(async (client) => {
     req.logout();
     res.redirect("/");
   });
-  app.post("/register", (req, res, next) => {
+  app.route("/register").post((req, res, next) => {
     myDatabase.findOne({ username: req.body.username }, (err, data) => {
       if (err) {
         next(err);
