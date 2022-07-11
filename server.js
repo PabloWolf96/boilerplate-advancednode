@@ -77,7 +77,15 @@ app.post(
     res.redirect("/profile");
   }
 );
-
+function ensureAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.redirect("/");
+}
+app.get("/profile", ensureAuthenticated, (req, res) => {
+  res.render("profile");
+});
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log("Listening on port " + PORT);
