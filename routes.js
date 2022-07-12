@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
 const passport = require("passport");
+const { render } = require("pug");
 module.exports = (app, myDatabase) => {
   app.route("/").get((req, res) => {
     res.render("index", {
@@ -67,9 +68,15 @@ module.exports = (app, myDatabase) => {
       failureRedirect: "/",
     }),
     (req, res) => {
-      res.redirect("/profile");
+      req.session.user._id = req.user.id;
+      res.redirect("/chat");
     }
   );
+  app.get("/chat", ensureAuthenticated, (req, res) => {
+    render("chat", {
+      user: req.user,
+    });
+  });
   app.use((req, res, next) => {
     res.status(404).type("text").send("Not Found");
   });
