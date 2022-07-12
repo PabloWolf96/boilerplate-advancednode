@@ -38,8 +38,8 @@ myDB(async (client) => {
     ++currentUsers;
     io.emit("user count", currentUsers);
     console.log("new user connected");
-    io.on("disconnect", () => {
-      console.log("user disconnected");
+    socket.on("disconnect", () => {
+      console.log("A user has disconnected");
       --currentUsers;
       io.emit("user count", currentUsers);
     });
