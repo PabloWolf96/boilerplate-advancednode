@@ -37,7 +37,37 @@ module.exports = (app, myDatabase) => {
         callbackURL: process.env.GITHUB_CALLBACK_URL,
       },
       (accessToken, refreshToken, profile, cb) => {
-        console.log(profile);
+        myDatabase.findAndModify(
+          {
+            id: profile.id,
+          },
+          {},
+          {
+            $setOnInsert: {
+              id: profile.id,
+              name: profile.displayName || "John Doe",
+              photo: profile.photos[0].value,
+              email: Array.isArray(profile.emails)
+                ? profile.emails[0].value
+                : "No public email",
+              create_on: new Date(),
+              provider: profile.provider || "",
+            },
+            $set: {
+              last_login: new Date(),
+            },
+            $inc: {
+              login_count: 1,
+            },
+          },
+          {
+            upsert: true,
+            new: true,
+          },
+          (err, doc) => {
+            return cb(err, doc.value);
+          }
+        );
       }
     )
   );
